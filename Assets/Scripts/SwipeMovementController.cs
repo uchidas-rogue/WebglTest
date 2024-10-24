@@ -3,42 +3,59 @@ using UnityEngine;
 public class SwipeMovementController : MonoBehaviour
 {
     [Header("Movement Settings")]
-    [SerializeField] private float moveSpeed = 5f;
-    [SerializeField] private float rotationSpeed = 10f;
-    [SerializeField] private float minSwipeDistance = 50f;
-    [SerializeField] private float stopSpeed = 5f;
+    [SerializeField] float moveSpeed = 5f;
+    [SerializeField] float minSwipeDistance = 50f;
+    [SerializeField] float stopSpeed = 5f;
+    [SerializeField] float gravity = 9.8f; // 重力を追加
 
     [Header("Ground Settings")]
-    [SerializeField] private float groundCheckDistance = 0.2f;
-    [SerializeField] private LayerMask groundLayer;
-    [SerializeField] private Vector3 groundCheckOffset = Vector3.up * 0.1f;
+    [SerializeField] float groundCheckDistance = 0.2f;
+    [SerializeField] LayerMask groundLayer;
+    [SerializeField] Vector3 groundCheckOffset = Vector3.up * 0.1f;
 
-    private Vector2 touchStartPos;
-    private Vector2 touchEndPos;
-    private bool isSwiping = false;
-    private bool isMoving = false;
-    private Vector3 targetDirection;
-    private CharacterController characterController;
-    private float currentSpeed;
-    private RaycastHit groundHit;
+    Animator harukoAnimator;
+    Vector3 groundCheckPosition = Vector3.zero;
+    Vector2 touchStartPos;
+    Vector2 touchEndPos;
+    bool isSwiping = false;
+    bool isMoving = false;
+    Vector3 targetDirection;
+    CharacterController characterController;
+    float currentSpeed;
+    RaycastHit groundHit;
+    float verticalVelocity; // Y方向の速度を管理
 
-    private void Start()
+    void Start()
     {
         characterController = GetComponent<CharacterController>();
         if (characterController == null)
         {
             Debug.LogError("CharacterControllerが見つかりません。コンポーネントを追加してください。");
         }
+
+        Transform childTransform = transform.Find("Haruko");
+        if (childTransform != null)
+        {
+            // 子オブジェクトのAnimatorコンポーネントを取得
+            harukoAnimator = childTransform.GetComponent<Animator>();
+            if (harukoAnimator == null)
+            {
+                Debug.LogError("Animator not found on the child object.");
+            }
+        }
+        else
+        {
+            Debug.LogError("Child object not found.");
+        }
     }
 
-    private void Update()
+    void Update()
     {
         HandleSwipeInput();
         MoveCharacter();
-        SnapToGround();
     }
 
-    private void HandleSwipeInput()
+    void HandleSwipeInput()
     {
         // タッチ入力の処理
         if (Input.touchCount > 0)
@@ -50,6 +67,7 @@ public class SwipeMovementController : MonoBehaviour
                 case TouchPhase.Began:
                     touchStartPos = touch.position;
                     isSwiping = true;
+                    harukoAnimator.SetBool("isWalking", true);
                     break;
 
                 case TouchPhase.Moved:
@@ -60,15 +78,12 @@ public class SwipeMovementController : MonoBehaviour
 
                         if (swipeDelta.magnitude > minSwipeDistance)
                         {
-                            Vector3 forward = Camera.main.transform.forward;
                             Vector3 right = Camera.main.transform.right;
-                            forward.y = 0;
-                            right.y = 0;
-                            forward.Normalize();
+                            right.y = 0; // 垂直方向の成分を無視
                             right.Normalize();
 
-                            targetDirection = forward * swipeDelta.y + right * swipeDelta.x;
-                            targetDirection.Normalize();
+                            // X方向のみにターゲット方向を設定
+                            targetDirection = right * swipeDelta.x;
                             isMoving = true;
                             currentSpeed = moveSpeed;
                         }
@@ -77,6 +92,7 @@ public class SwipeMovementController : MonoBehaviour
 
                 case TouchPhase.Ended:
                     isSwiping = false;
+                    harukoAnimator.SetBool("isWalking", false);
                     break;
             }
         }
@@ -87,6 +103,7 @@ public class SwipeMovementController : MonoBehaviour
         {
             touchStartPos = Input.mousePosition;
             isSwiping = true;
+            harukoAnimator.SetBool("isWalking", true);
         }
         else if (Input.GetMouseButton(0) && isSwiping)
         {
@@ -95,15 +112,12 @@ public class SwipeMovementController : MonoBehaviour
 
             if (swipeDelta.magnitude > minSwipeDistance)
             {
-                Vector3 forward = Camera.main.transform.forward;
                 Vector3 right = Camera.main.transform.right;
-                forward.y = 0;
-                right.y = 0;
-                forward.Normalize();
+                right.y = 0; // 垂直方向の成分を無視
                 right.Normalize();
 
-                targetDirection = forward * swipeDelta.y + right * swipeDelta.x;
-                targetDirection.Normalize();
+                // X方向のみにターゲット方向を設定
+                targetDirection = right * swipeDelta.x;
                 isMoving = true;
                 currentSpeed = moveSpeed;
             }
@@ -111,11 +125,12 @@ public class SwipeMovementController : MonoBehaviour
         else if (Input.GetMouseButtonUp(0))
         {
             isSwiping = false;
+            harukoAnimator.SetBool("isWalking", false);
         }
         #endif
     }
 
-    private void MoveCharacter()
+    void MoveCharacter()
     {
         if (targetDirection != Vector3.zero && isMoving)
         {
@@ -131,37 +146,42 @@ public class SwipeMovementController : MonoBehaviour
                 }
             }
 
-            // キャラクターの回転
-            Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
-            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-
-            // 水平方向の移動のみを適用
+            // 水平方向 (X方向) のみの移動
             Vector3 movement = targetDirection * currentSpeed * Time.deltaTime;
-            movement.y = 0; // Y軸の移動を強制的に0に
+            movement.z = 0; // Z軸の移動を強制的に0に
+
+            // 重力を適用し、Y軸のスナップを実施
+            ApplyGravity();
+
+            // キャラクターを移動
             characterController.Move(movement);
         }
-    }
-
-    private void SnapToGround()
-    {
-        // キャラクターの足元から地面までのレイキャスト
-        Vector3 rayStart = transform.position + groundCheckOffset;
-        if (Physics.Raycast(rayStart, Vector3.down, out groundHit, groundCheckDistance + groundCheckOffset.y, groundLayer))
+        else
         {
-            // 現在位置から地面までの距離を計算
-            float distanceToGround = groundHit.distance - groundCheckOffset.y;
-            
-            // 地面との高さの差がある場合、スナップ
-            if (distanceToGround > 0)
-            {
-                Vector3 snapMovement = Vector3.down * distanceToGround;
-                characterController.Move(snapMovement);
-            }
+            // 移動していない場合も地面にスナップ
+            ApplyGravity();
         }
     }
 
+    void ApplyGravity()
+    {
+        // キャラクターが地面に接しているか確認
+        if (characterController.isGrounded)
+        {
+            verticalVelocity = -groundCheckDistance; // 地面にいるときはY方向の速度を小さく
+        }
+        else
+        {
+            verticalVelocity -= gravity * Time.deltaTime; // 重力を適用
+        }
+
+        // Y方向の移動を適用して地面にスナップ
+        Vector3 gravityMovement = new Vector3(0, verticalVelocity, 0);
+        characterController.Move(gravityMovement * Time.deltaTime);
+    }
+    
     // デバッグ用のギズモ描画
-    private void OnDrawGizmosSelected()
+    void OnDrawGizmosSelected()
     {
         // 地面チェックの範囲を可視化
         Gizmos.color = Color.green;
