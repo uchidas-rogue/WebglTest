@@ -3,7 +3,7 @@ using UnityEngine;
 public class SwipeMovementController : MonoBehaviour
 {
     [Header("Movement Settings")]
-    [SerializeField] float moveSpeed = 5f;
+    [SerializeField] float moveSpeed = 0.2f;
     [SerializeField] float minSwipeDistance = 50f;
     [SerializeField] float stopSpeed = 5f;
     [SerializeField] float gravity = 9.8f; // 重力を追加
