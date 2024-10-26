@@ -9,7 +9,7 @@ public class SwipeMovementController : MonoBehaviour
     [SerializeField] float gravity = 9.8f; // 重力を追加
 
     [Header("Ground Settings")]
-    [SerializeField] float groundCheckDistance = 0.2f;
+    [SerializeField] float groundCheckDistance = 0f;
     [SerializeField] LayerMask groundLayer;
     [SerializeField] Vector3 groundCheckOffset = Vector3.up * 0.1f;
 
