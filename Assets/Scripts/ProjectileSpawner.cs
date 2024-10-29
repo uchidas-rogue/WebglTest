@@ -10,6 +10,7 @@ public class ProjectileSpawner : MonoBehaviour
     [SerializeField] private float spawnInterval = 1f; // 発射間隔（秒）
     [SerializeField] private float maxDistance = 10f; // 球体が移動して破棄される最大距離
     [SerializeField] private float sideSpacing = 0.5f; // 側方にずれる距離
+    [SerializeField] private float launchDelay = 0.1f; // 球の発射タイミングをずらす間隔
 
     private float spawnTimer; // 発射間隔の計測用タイマー
 
@@ -26,24 +27,33 @@ public class ProjectileSpawner : MonoBehaviour
 
     private void SpawnProjectiles()
     {
+        // DOTweenのシーケンスを作成してタイミングを制御
+        Sequence launchSequence = DOTween.Sequence();
+
         for (int i = 0; i < projectileCount; i++)
         {
-            // キャラクターの前方向に対する発射位置
-            Vector3 spawnPosition = transform.position + transform.forward + transform.right * ((i - (projectileCount - 1) / 2f) * sideSpacing);
+            int index = i; // ローカルスコープの変数を使用
 
-            // Projectileのインスタンスを生成
-            GameObject projectile = Instantiate(projectilePrefab, spawnPosition, Quaternion.identity);
-            
-            // キャラクターの前方向に基づくターゲット位置を設定
-            Vector3 targetPosition = spawnPosition + transform.forward * maxDistance;
+            // シーケンスに遅延と発射処理を追加
+            launchSequence.AppendCallback(() =>
+            {
+                Vector3 spawnPosition = transform.position + transform.forward + transform.right * ((index - (projectileCount - 1) / 2f) * sideSpacing);
 
-            // DOTweenを使用して、キャラクターの前方向に球体を移動
-            projectile.transform.DOMove(targetPosition, maxDistance / projectileSpeed)
-                .SetEase(Ease.Linear)
-                .OnKill(() =>
-                {
-                    Destroy(projectile); // 移動終了後にオブジェクトを破棄
-                });
+                GameObject projectile = Instantiate(projectilePrefab, spawnPosition, Quaternion.identity);
+
+                Vector3 targetPosition = spawnPosition + transform.forward * maxDistance;
+
+                // DOTweenで球体を移動
+                projectile.transform.DOMove(targetPosition, maxDistance / projectileSpeed)
+                    .SetEase(Ease.Linear)
+                    .OnKill(() =>
+                    {
+                        Destroy(projectile);
+                    });
+            });
+
+            // 次の球の発射を少し遅らせる
+            launchSequence.AppendInterval(launchDelay);
         }
     }
 }
