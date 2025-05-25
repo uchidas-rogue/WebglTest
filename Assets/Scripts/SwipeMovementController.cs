@@ -150,11 +150,22 @@ public class SwipeMovementController : MonoBehaviour
             Vector3 movement = targetDirection * currentSpeed * Time.deltaTime;
             movement.z = 0; // Z軸の移動を強制的に0に
 
+            // 斜めの壁にぶつかった際にZ軸方向へ滑らないようにする
+            // Move前にX方向だけの移動ベクトルを作成し、壁との衝突でZ方向に押し出されてもX方向のみを維持
+            Vector3 beforePosition = transform.position;
+
             // 重力を適用し、Y軸のスナップを実施
             ApplyGravity();
 
             // キャラクターを移動
             characterController.Move(movement);
+
+            // 移動後の位置でZ軸方向にずれていたら補正
+            Vector3 afterPosition = transform.position;
+            if (Mathf.Abs(afterPosition.z - beforePosition.z) > 0.0001f)
+            {
+                transform.position = new Vector3(afterPosition.x, afterPosition.y, beforePosition.z);
+            }
         }
         else
         {

@@ -6,14 +6,13 @@ public class EnemyMovement : MonoBehaviour
     private float moveSpeed;
     private bool isMoving = true; // 敵が移動中かどうかのフラグ
 
-    [Header("Destruction Settings")]
-    [SerializeField] private int requiredHits = 1; // 破壊されるまでの接触回数
-    private int currentHits = 0; // 現在の接触回数
+    private int hp = 1; // HPとして扱う
 
-    public void Initialize(Transform player, float speed)
+    public void Initialize(Transform player, float speed, int hpValue)
     {
         playerTransform = player;
         moveSpeed = speed;
+        hp = hpValue;
     }
 
     private void Update()
@@ -37,13 +36,22 @@ public class EnemyMovement : MonoBehaviour
         // Bulletタグのオブジェクトとの接触処理
         if (other.CompareTag("Bullet"))
         {
-            Debug.Log("Bulletに接触しました。現在のヒット数: " + currentHits);
-            currentHits++; // 接触回数をカウント
-
-            if (currentHits >= requiredHits)
+            // Bullet.csから減らす値を取得
+            Bullet bulletScript = other.GetComponent<Bullet>();
+            int damage = 1;
+            if (bulletScript != null)
             {
-                 Debug.Log("指定回数に達したため、enemy_cubeを破壊します。");
-                Destroy(gameObject); // 規定回数以上接触したら破壊
+                // Bullet.csにpublic int damage = 1; などのメンバを用意してください
+                damage = bulletScript.damage;
+            }
+
+            Debug.Log($"Bulletに接触しました。現在のHP: {hp} ダメージ: {damage}");
+            hp -= damage; // Bullet.csから取得した値でHPを減る
+
+            if (hp <= 0)
+            {
+                Debug.Log("HPが0になったため、enemy_cubeを破壊します。");
+                Destroy(gameObject); // HPが0以下なら破壊
             }
         }
     }

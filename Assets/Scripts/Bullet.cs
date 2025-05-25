@@ -7,6 +7,7 @@ public class Bullet : MonoBehaviour
     private float maxDistance = 10f;
     private Vector3 direction = Vector3.forward;
     public bool isSplitGenerated = false;
+    public int damage = 1;
 
     public void SetBulletParams(float speed, float distance, Vector3 dir)
     {

@@ -10,6 +10,7 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private Vector3 spawnAreaSize = new Vector3(10, 0, 10); // 出現エリアのサイズ
     [SerializeField] private float enemySize = 1f; // 敵の大きさ
     [SerializeField] private float moveSpeed = 2f; // 敵の移動速度
+    [SerializeField] private int enemyHp = 1; // 敵の初期HP ←追加
 
     private float spawnTimer;
 
@@ -43,7 +44,16 @@ public class EnemySpawner : MonoBehaviour
             enemy.transform.localScale = Vector3.one * enemySize;
 
             EnemyMovement enemyMovement = enemy.AddComponent<EnemyMovement>();
-            enemyMovement.Initialize(playerTransform, moveSpeed);
+            enemyMovement.Initialize(playerTransform, moveSpeed, enemyHp); // HPを渡す
         }
     }
+
+#if UNITY_EDITOR
+    private void OnDrawGizmosSelected()
+    {
+        // エリアをワイヤーフレームで表示
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireCube(transform.position + new Vector3(0, spawnAreaSize.y / 2, 0), spawnAreaSize);
+    }
+#endif
 }
