@@ -11,6 +11,7 @@ public class BulletSpawner : MonoBehaviour
     [SerializeField] private float maxDistance = 10f; // 弾が移動して破棄される最大距離
     [SerializeField] private float sideSpacing = 0.5f; // 側方にずれる距離
     [SerializeField] private float launchDelay = 0.1f; // 弾の発射タイミングをずらす間隔
+    [SerializeField] private int bulletDamage = 1; // 弾のダメージ
 
     private float spawnTimer; // 発射間隔の計測用タイマー
 
@@ -44,6 +45,7 @@ public class BulletSpawner : MonoBehaviour
                 Bullet bulletScript = bullet.GetComponent<Bullet>();
                 if (bulletScript != null)
                 {
+                    bulletScript.damage = bulletDamage; // bulletDamageで上書き
                     bulletScript.SetBulletParams(bulletSpeed, maxDistance, transform.forward);
                 }
             });
@@ -52,4 +54,18 @@ public class BulletSpawner : MonoBehaviour
             launchSequence.AppendInterval(launchDelay);
         }
     }
+
+    public void IncreaseBulletCount(int value)
+    {
+        bulletCount += value;
+    }
+
+    public void IncreaseBulletDamage(int value)
+    {
+        bulletDamage += value;
+    }
+
+    public int BulletCount => bulletCount;
+
+    public int BulletDamage => bulletDamage;
 }
