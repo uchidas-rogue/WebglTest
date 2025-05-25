@@ -986,6 +986,7 @@ MonoBehaviour:
   maxDistance: 15
   sideSpacing: 0.5
   launchDelay: 0.1
+  bulletDamage: 1
 --- !u!1 &1295919765
 GameObject:
   m_ObjectHideFlags: 0
@@ -1192,7 +1193,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   barrelPrefab: {fileID: 7954821102670974366, guid: 1479b51c726dc419ab1275e4a1d22ae0, type: 3}
-  spawnInterval: 7
+  spawnInterval: 4
   spawnCount: 1
   spawnOffset: {x: 0, y: 0, z: 0}
   randomXRange: 2.5
