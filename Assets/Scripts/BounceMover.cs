@@ -55,7 +55,7 @@ public class BounceMover : MonoBehaviour
         }
     }
 
-    private void OnDestroy()
+    private void OnDisable()
     {
         moveTween?.Kill();
     }

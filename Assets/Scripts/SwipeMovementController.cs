@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro; // 追加
 
 public class SwipeMovementController : MonoBehaviour
 {
@@ -6,7 +8,7 @@ public class SwipeMovementController : MonoBehaviour
     [SerializeField] float moveSpeed = 0.05f;
     [SerializeField] float minSwipeDistance = 50f;
     [SerializeField] float stopSpeed = 5f;
-    [SerializeField] float gravity = 9.8f; // 重力を追加
+    [SerializeField] float gravity = 9.8f;
 
     [Header("Ground Settings")]
     [SerializeField] float groundCheckDistance = 0f;
@@ -23,7 +25,16 @@ public class SwipeMovementController : MonoBehaviour
     CharacterController characterController;
     float currentSpeed;
     RaycastHit groundHit;
-    float verticalVelocity; // Y方向の速度を管理
+    float verticalVelocity;
+    bool isGameOver = false;
+
+    [SerializeField] private BarrelSpawner barrelSpawner; // Inspectorでセット
+    [SerializeField] private EnemySpawner enemySpawner;   // Inspectorでセット
+
+    [SerializeField] private TextMeshProUGUI gameOverText; // GameOverの文字をTMPに変更
+    [SerializeField] private GameObject retryButton;   // リトライボタン（Inspectorでセット）
+    [SerializeField] private GameObject splitterPlane;   // スプリッターのPlaneオブジェクト（Inspectorでセット）
+
 
     void Start()
     {
@@ -36,7 +47,6 @@ public class SwipeMovementController : MonoBehaviour
         Transform childTransform = transform.Find("Haruko");
         if (childTransform != null)
         {
-            // 子オブジェクトのAnimatorコンポーネントを取得
             harukoAnimator = childTransform.GetComponent<Animator>();
             if (harukoAnimator == null)
             {
@@ -51,6 +61,7 @@ public class SwipeMovementController : MonoBehaviour
 
     void Update()
     {
+        if (isGameOver) return;
         HandleSwipeInput();
         MoveCharacter();
     }
@@ -198,5 +209,56 @@ public class SwipeMovementController : MonoBehaviour
         Gizmos.color = Color.green;
         Vector3 rayStart = transform.position + groundCheckOffset;
         Gizmos.DrawLine(rayStart, rayStart + Vector3.down * (groundCheckDistance + groundCheckOffset.y));
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        // EnemyまたはBarrelタグのオブジェクトと衝突したらGameOver
+        if (!isGameOver && (other.CompareTag("Enemy") || other.CompareTag("Barrel")))
+        {
+            GameOver();
+        }
+    }
+
+    private void GameOver()
+    {
+        isGameOver = true;
+
+        // BarrelSpawnerとEnemySpawnerも停止
+        if (barrelSpawner != null)
+        {
+            barrelSpawner.enabled = false;
+        }
+        if (enemySpawner != null)
+        {
+            enemySpawner.enabled = false;
+        }
+
+        // splitterPlaneを破棄
+        if (splitterPlane != null)
+        {
+            Destroy(splitterPlane);
+        }
+
+        // 全てのEnemyとBarrelの動きを停止
+        foreach (var enemy in GameObject.FindGameObjectsWithTag("Enemy"))
+        {
+            // Enemyをdestroyする
+            Destroy(enemy);
+        }
+        foreach (var barrel in GameObject.FindGameObjectsWithTag("Barrel"))
+        {
+            // Barrelをdestroyする
+            Destroy(barrel);
+        }
+
+        // GameOverパネル（gameUiCanvas）と文字、リトライボタンを表示
+        if (gameOverText != null)
+            gameOverText.gameObject.SetActive(true);
+        if (retryButton != null)
+            retryButton.SetActive(true);
+
+        // プレイヤーオブジェクト自体を無効化
+        gameObject.SetActive(false);
     }
 }

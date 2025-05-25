@@ -49,7 +49,6 @@ public class EnemyMovement : MonoBehaviour
                 damage = bulletScript.damage;
             }
 
-            Debug.Log($"Bulletに接触しました。現在のHP: {hp} ダメージ: {damage}");
             hp -= damage; // Bullet.csから取得した値でHPを減る
 
             if (hp <= 0)
@@ -59,7 +58,6 @@ public class EnemyMovement : MonoBehaviour
                 {
                     scoreModel.scoreRP.Value += initialHp;
                 }
-                Debug.Log("HPが0になったため、enemyを破壊します。");
                 Destroy(gameObject); // HPが0以下なら破壊
             }
         }
