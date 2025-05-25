@@ -27,19 +27,21 @@ public class EnemySpawner : MonoBehaviour
     {
         for (int i = 0; i < spawnCount; i++)
         {
-            // ランダムな位置に敵を出現させる
+            // スポナーの位置を基準にエリア内でランダムに出現
+            Vector3 center = transform.position;
             Vector3 spawnPosition = new Vector3(
-                Random.Range(-spawnAreaSize.x / 2, spawnAreaSize.x / 2),
-                spawnAreaSize.y,
-                Random.Range(-spawnAreaSize.z / 2, spawnAreaSize.z / 2)
+                center.x + Random.Range(-spawnAreaSize.x / 2, spawnAreaSize.x / 2),
+                center.y + spawnAreaSize.y,
+                center.z + Random.Range(-spawnAreaSize.z / 2, spawnAreaSize.z / 2)
             );
 
-            GameObject enemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
+            // z軸で逆向きに回転
+            Quaternion rotation = Quaternion.Euler(0, 180f, 0);
 
-            // 敵の大きさを調整
+            GameObject enemy = Instantiate(enemyPrefab, spawnPosition, rotation);
+
             enemy.transform.localScale = Vector3.one * enemySize;
 
-            // 敵がプレイヤーに向かうように移動するスクリプトを追加
             EnemyMovement enemyMovement = enemy.AddComponent<EnemyMovement>();
             enemyMovement.Initialize(playerTransform, moveSpeed);
         }

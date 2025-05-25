@@ -621,7 +621,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -660,8 +660,8 @@ Transform:
   m_GameObject: {fileID: 934559458}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0.19, y: 4.91, z: -8.22}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 3.1711, y: 2.7268, z: -10.41}
+  m_LocalScale: {x: 0.6297892, y: 1, z: 0.35937962}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -680,8 +680,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   splitPrefab: {fileID: 1029580353580537960, guid: cb549c07747db40adb06fb3560fb9009, type: 3}
   splitCount: 3
-  positionOffset: 0.1
-  maxSplitTimes: 3
+  positionOffset: 1
 --- !u!1 &1018275482
 GameObject:
   m_ObjectHideFlags: 0
@@ -820,11 +819,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7d110dedd2604ad8b9b0aad05efcabc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyPrefab: {fileID: 9056349605090378023, guid: e9a87da4efb5247d4b4dbb3a7cf86a4a, type: 3}
+  enemyPrefab: {fileID: 8858051749441068820, guid: 4c67ed6c086451b4db54ac4d24b626bb, type: 3}
   playerTransform: {fileID: 1214587523}
   spawnInterval: 2
   spawnCount: 5
-  spawnAreaSize: {x: 10, y: 1.5, z: 10}
+  spawnAreaSize: {x: 10, y: 0, z: 10}
   enemySize: 1
   moveSpeed: 2
 --- !u!4 &1177541754
@@ -836,7 +835,7 @@ Transform:
   m_GameObject: {fileID: 1177541752}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 35}
+  m_LocalPosition: {x: 0, y: 1, z: 15}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -935,9 +934,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4c42a9ee755a42638b43f85643e52da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  projectilePrefab: {fileID: 1029580353580537960, guid: cb549c07747db40adb06fb3560fb9009, type: 3}
-  projectileSpeed: 15
-  projectileCount: 1
+  bulletPrefab: {fileID: 1029580353580537960, guid: cb549c07747db40adb06fb3560fb9009, type: 3}
+  bulletSpeed: 10
+  bulletCount: 2
   spawnInterval: 0.5
   maxDistance: 15
   sideSpacing: 0.5
