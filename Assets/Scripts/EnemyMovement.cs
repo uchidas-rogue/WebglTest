@@ -1,4 +1,5 @@
 using UnityEngine;
+using Model;
 
 public class EnemyMovement : MonoBehaviour
 {
@@ -7,12 +8,15 @@ public class EnemyMovement : MonoBehaviour
     private bool isMoving = true; // 敵が移動中かどうかのフラグ
 
     private int hp = 1; // HPとして扱う
+    private int initialHp = 1; // 生成時のHPを保持
 
+    public Score scoreModel { get; set; } // EnemySpawnerでInjectされたスコアモデル
     public void Initialize(Transform player, float speed, int hpValue)
     {
         playerTransform = player;
         moveSpeed = speed;
         hp = hpValue;
+        initialHp = hpValue;
     }
 
     private void Update()
@@ -50,7 +54,12 @@ public class EnemyMovement : MonoBehaviour
 
             if (hp <= 0)
             {
-                Debug.Log("HPが0になったため、enemy_cubeを破壊します。");
+                // スコア加算（初期HP分）
+                if (scoreModel != null)
+                {
+                    scoreModel.scoreRP.Value += initialHp;
+                }
+                Debug.Log("HPが0になったため、enemyを破壊します。");
                 Destroy(gameObject); // HPが0以下なら破壊
             }
         }

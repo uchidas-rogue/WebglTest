@@ -1,4 +1,6 @@
 using UnityEngine;
+using Model;
+using VContainer;
 
 public class EnemySpawner : MonoBehaviour
 {
@@ -10,7 +12,9 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private Vector3 spawnAreaSize = new Vector3(10, 0, 10); // 出現エリアのサイズ
     [SerializeField] private float enemySize = 1f; // 敵の大きさ
     [SerializeField] private float moveSpeed = 2f; // 敵の移動速度
-    [SerializeField] private int enemyHp = 1; // 敵の初期HP ←追加
+    [SerializeField] private int enemyHp = 1; // 敵の初期HP
+
+    [Inject] public Score scoreModel { get; set; } // VContainerでInject
 
     private float spawnTimer;
 
@@ -45,6 +49,7 @@ public class EnemySpawner : MonoBehaviour
 
             EnemyMovement enemyMovement = enemy.AddComponent<EnemyMovement>();
             enemyMovement.Initialize(playerTransform, moveSpeed, enemyHp); // HPを渡す
+            enemyMovement.scoreModel = scoreModel; // InjectしたscoreModelを渡す
         }
     }
 
