@@ -8,6 +8,8 @@ public class BounceMover : MonoBehaviour
     private Tween moveTween;
     private Rigidbody rb;
 
+    private bool isProcessingCollision = false; // 排他制御用フラグ
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -41,10 +43,15 @@ public class BounceMover : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        if (isProcessingCollision) return; // すでに処理中なら何もしない
+
         if (collision.gameObject.CompareTag("Wall"))
         {
+            isProcessingCollision = true;
             direction *= -1;
             MoveNext();
+            // 少し遅らせてフラグ解除（物理判定の多重呼び出し対策）
+            DOVirtual.DelayedCall(0.05f, () => isProcessingCollision = false);
         }
     }
 

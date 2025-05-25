@@ -47,8 +47,11 @@ public class EnemySpawner : MonoBehaviour
 
             enemy.transform.localScale = Vector3.one * enemySize;
 
+            // スコアに応じてHPを増加（例：scoreが100増えるごとに+1、最低3）
+            int dynamicHp = Mathf.Max(3, enemyHp + (scoreModel.scoreRP.Value / 100));
+
             EnemyMovement enemyMovement = enemy.AddComponent<EnemyMovement>();
-            enemyMovement.Initialize(playerTransform, moveSpeed, enemyHp); // HPを渡す
+            enemyMovement.Initialize(playerTransform, moveSpeed, dynamicHp); // HPを渡す
             enemyMovement.scoreModel = scoreModel; // InjectしたscoreModelを渡す
         }
     }

@@ -6,12 +6,12 @@ public class BulletSpawner : MonoBehaviour
     [Header("Bullet Settings")]
     [SerializeField] private GameObject bulletPrefab; // 発射する弾のプレハブ
     [SerializeField] private float bulletSpeed = 10f; // 発射速度
-    [SerializeField] private int bulletCount = 1; // 一度に発射する弾の数
     [SerializeField] private float spawnInterval = 1f; // 発射間隔（秒）
     [SerializeField] private float maxDistance = 10f; // 弾が移動して破棄される最大距離
     [SerializeField] private float sideSpacing = 0.5f; // 側方にずれる距離
     [SerializeField] private float launchDelay = 0.1f; // 弾の発射タイミングをずらす間隔
     [SerializeField] private int bulletDamage = 1; // 弾のダメージ
+    [SerializeField] private int bulletCount = 1; // 一度に発射する弾の数
 
     private float spawnTimer; // 発射間隔の計測用タイマー
 

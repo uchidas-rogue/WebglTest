@@ -13,12 +13,7 @@ public class BarrelBonus : MonoBehaviour
 
     private bool isBonusGiven = false; // ボーナス重複防止用
 
-    private void Start()
-    {
-        UpdateText();
-    }
-
-    private void UpdateText()
+    public void UpdateText()
     {
         if (tmpText != null)
         {

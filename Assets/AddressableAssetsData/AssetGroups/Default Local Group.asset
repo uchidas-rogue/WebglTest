@@ -15,6 +15,11 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: 4dca1644acb974be59e6997e990e3c2f
   m_SerializeEntries:
+  - m_GUID: 1479b51c726dc419ab1275e4a1d22ae0
+    m_Address: Assets/Prefabs/Barral.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: cb549c07747db40adb06fb3560fb9009
     m_Address: Assets/Prefabs/GoldSphere.prefab
     m_ReadOnly: 0

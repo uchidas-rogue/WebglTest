@@ -9,6 +9,8 @@ public class Bullet : MonoBehaviour
     public bool isSplitGenerated = false;
     public int damage = 1;
 
+    private Tween moveTween; // Tweenを保持
+
     public void SetBulletParams(float speed, float distance, Vector3 dir)
     {
         bulletSpeed = speed;
@@ -20,11 +22,14 @@ public class Bullet : MonoBehaviour
     {
         // DOTweenで移動
         Vector3 targetPosition = transform.position + direction.normalized * maxDistance;
-        transform.DOMove(targetPosition, maxDistance / bulletSpeed)
+        moveTween = transform.DOMove(targetPosition, maxDistance / bulletSpeed)
             .SetEase(Ease.Linear)
-            .OnKill(() =>
+            .OnComplete(() =>
             {
-                Destroy(gameObject);
+                if (this != null && gameObject != null)
+                {
+                    Destroy(gameObject);
+                }
             });
     }
 
@@ -33,6 +38,15 @@ public class Bullet : MonoBehaviour
         if (other.CompareTag("Enemy") || other.CompareTag("Barrel"))
         {
             Destroy(gameObject);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        // オブジェクト破棄時にTweenも破棄
+        if (moveTween != null && moveTween.IsActive())
+        {
+            moveTween.Kill();
         }
     }
 

@@ -275,7 +275,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 1047}
+  m_AnchoredPosition: {x: 0, y: 883}
   m_SizeDelta: {x: 838.5836, y: 136.6511}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &91310225
@@ -1523,7 +1523,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9a556fcee85848f5a682cd86c9559bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  barrelPrefab: {fileID: 7954821102670974366, guid: 1479b51c726dc419ab1275e4a1d22ae0, type: 3}
+  barrelPrefabReference:
+    m_AssetGUID: 1479b51c726dc419ab1275e4a1d22ae0
+    m_SubObjectName: 
+    m_SubObjectGUID: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
   spawnInterval: 4
   spawnCount: 1
   spawnOffset: {x: 0, y: 0, z: 0}

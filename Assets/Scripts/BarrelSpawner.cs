@@ -1,8 +1,11 @@
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using System.Collections;
 
 public class BarrelSpawner : MonoBehaviour
 {
-    [SerializeField] private GameObject barrelPrefab; // Barrelのプレハブ
+    [SerializeField] private AssetReference barrelPrefabReference; // Addressables用
     [SerializeField] private float spawnInterval = 10f; // 生成間隔（秒）
     [SerializeField] private int spawnCount = 1; // 一度に生成する数
     [SerializeField] private Vector3 spawnOffset = Vector3.zero; // 生成位置のオフセット
@@ -12,52 +15,67 @@ public class BarrelSpawner : MonoBehaviour
 
     private float timer = 0f;
 
+    private void Start()
+    {
+        // 事前ロード
+        Addressables.LoadAssetAsync<GameObject>(barrelPrefabReference);
+    }
+
     private void Update()
     {
         timer += Time.deltaTime;
         if (timer >= spawnInterval)
         {
-            SpawnBarrels();
+            StartCoroutine(SpawnBarrelsAsync());
             timer = 0f;
         }
     }
 
-    private void SpawnBarrels()
+    private IEnumerator SpawnBarrelsAsync()
     {
         for (int i = 0; i < spawnCount; i++)
         {
             float randomX = Random.Range(-randomXRange, randomXRange);
             Vector3 spawnPos = transform.position + spawnOffset + new Vector3(randomX, 0, 0);
             Quaternion rotation = Quaternion.Euler(0, 0, 90); // Z軸に90度回転
-            GameObject barrel = Instantiate(barrelPrefab, spawnPos, rotation);
-            barrel.transform.localScale *= 2f; // 大きさを2倍に
 
-            // BarrelBonusがアタッチされていればBulletSpawnerとhpとbonusTypeをセット
-            BarrelBonus bonus = barrel.GetComponent<BarrelBonus>();
-            if (bonus != null)
+            // Addressablesで非同期ロード
+            AsyncOperationHandle<GameObject> handle = barrelPrefabReference.InstantiateAsync(spawnPos, rotation);
+            yield return handle;
+
+            if (handle.Status == AsyncOperationStatus.Succeeded)
             {
-                bonus.bulletSpawner = bulletSpawner;
+                GameObject barrel = handle.Result;
+                barrel.transform.localScale *= 2f; // 大きさを2倍に
 
-                // bonusTypeをランダムでセット
-                int typeCount = System.Enum.GetValues(typeof(BarrelBonus.BonusType)).Length;
-                bonus.bonusType = (BarrelBonus.BonusType)Random.Range(0, typeCount);
-
-                int bulletCount = bulletSpawner.BulletCount;
-                int bulletDamage = bulletSpawner.BulletDamage;
-                float randomRate = Random.Range(0.8f, 1.5f); // 0.8～1.5倍のランダム倍率
-
-                int threshold = 2; // ここで閾値を設定
-                int hp;
-                if (bulletCount + bulletDamage <= threshold)
+                // BarrelBonusがアタッチされていればBulletSpawnerとhpとbonusTypeをセット
+                BarrelBonus bonus = barrel.GetComponent<BarrelBonus>();
+                if (bonus != null)
                 {
-                    hp = 20;
-                }
-                else
-                {
+                    bonus.bulletSpawner = bulletSpawner;
+
+                    // bonusTypeをランダムでセット
+                    int typeCount = System.Enum.GetValues(typeof(BarrelBonus.BonusType)).Length;
+                    bonus.bonusType = (BarrelBonus.BonusType)Random.Range(0, typeCount);
+
+                    int bulletCount = bulletSpawner.BulletCount;
+                    int bulletDamage = bulletSpawner.BulletDamage;
+                    float randomRate = Random.Range(0.8f, 1.2f); // 0.8～1.2倍のランダム倍率
+
+                    int threshold = 2; // ここで閾値を設定
+                    int hp;
+                    if (bulletCount + bulletDamage <= threshold)
+                    {
+                        hp = 20;
+                    }
+                    else
+                    {
                     hp = Mathf.Max(20, Mathf.RoundToInt(20f * Mathf.Pow(hpGrowthRate, bulletCount + bulletDamage)));
-                }
+                    }
 
-                bonus.hp = Mathf.RoundToInt(hp * randomRate);
+                    bonus.hp = Mathf.RoundToInt(hp * randomRate);
+                    bonus.UpdateText(); // 初期テキスト更新
+                }
             }
         }
     }
