@@ -1,5 +1,6 @@
 using UnityEngine;
 using DG.Tweening;
+using TMPro;
 
 public class Splitter : MonoBehaviour
 {
@@ -7,6 +8,18 @@ public class Splitter : MonoBehaviour
     [SerializeField] private GameObject splitPrefab;
     [SerializeField] private int splitCount = 3;
     [SerializeField] private float positionOffset = 0.1f;
+
+    [Header("UI")]
+    [SerializeField] private TextMeshPro tmpText; // Inspectorからセット
+
+    private void Start()
+    {
+        if (tmpText != null)
+        {
+            // %sをsplitCountで置換して表示
+            tmpText.text = tmpText.text.Replace("%s", splitCount.ToString());
+        }
+    }
 
     private void OnCollisionEnter(Collision collision)
     {
