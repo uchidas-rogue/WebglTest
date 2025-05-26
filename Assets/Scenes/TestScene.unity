@@ -1824,6 +1824,7 @@ MonoBehaviour:
   randomXRange: 2.5
   bulletSpawner: {fileID: 1214587526}
   hpGrowthRate: 1.15
+  minDistance: 2
 --- !u!4 &1712430200
 Transform:
   m_ObjectHideFlags: 0
