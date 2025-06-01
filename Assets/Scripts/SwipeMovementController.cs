@@ -1,12 +1,10 @@
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro; // 追加
+using DG.Tweening; // 追加
 
 public class SwipeMovementController : MonoBehaviour
 {
     [Header("Movement Settings")]
     [SerializeField] float moveSpeed = 0.05f;
-    [SerializeField] float minSwipeDistance = 50f;
     [SerializeField] float stopSpeed = 5f;
     [SerializeField] float gravity = 9.8f;
 
@@ -16,25 +14,23 @@ public class SwipeMovementController : MonoBehaviour
     [SerializeField] Vector3 groundCheckOffset = Vector3.up * 0.1f;
 
     Animator harukoAnimator;
-    Vector3 groundCheckPosition = Vector3.zero;
-    Vector2 touchStartPos;
-    Vector2 touchEndPos;
-    bool isSwiping = false;
+
     bool isMoving = false;
     Vector3 targetDirection;
     CharacterController characterController;
     float currentSpeed;
-    RaycastHit groundHit;
     float verticalVelocity;
     bool isGameOver = false;
 
     [SerializeField] private BarrelSpawner barrelSpawner; // Inspectorでセット
     [SerializeField] private EnemySpawner enemySpawner;   // Inspectorでセット
 
-    [SerializeField] private TextMeshProUGUI gameOverText; // GameOverの文字をTMPに変更
+    [SerializeField] private GameObject gameOverTextBgImg; // GameOverの表示（Inspectorでセット）
     [SerializeField] private GameObject retryButton;   // リトライボタン（Inspectorでセット）
     [SerializeField] private GameObject splitterPlane;   // スプリッターのPlaneオブジェクト（Inspectorでセット）
 
+
+    private Tween moveTween;
 
     void Start()
     {
@@ -62,91 +58,84 @@ public class SwipeMovementController : MonoBehaviour
     void Update()
     {
         if (isGameOver) return;
-        HandleSwipeInput();
+        HandleTouchMove();
         MoveCharacter();
     }
 
-    void HandleSwipeInput()
+    void HandleTouchMove()
     {
-        // タッチ入力の処理
+        // タッチ入力でX座標の位置に移動
         if (Input.touchCount > 0)
         {
             Touch touch = Input.GetTouch(0);
-
-            switch (touch.phase)
+            if (touch.phase == TouchPhase.Began || touch.phase == TouchPhase.Moved)
             {
-                case TouchPhase.Began:
-                    touchStartPos = touch.position;
-                    isSwiping = true;
-                    harukoAnimator.SetBool("isWalking", true);
-                    break;
+                Vector3 touchPos = touch.position;
+                touchPos.z = Mathf.Abs(Camera.main.transform.position.z - transform.position.z);
+                Vector3 worldPos = Camera.main.ScreenToWorldPoint(touchPos);
 
-                case TouchPhase.Moved:
-                    if (isSwiping)
-                    {
-                        touchEndPos = touch.position;
-                        Vector2 swipeDelta = touchEndPos - touchStartPos;
-
-                        if (swipeDelta.magnitude > minSwipeDistance)
-                        {
-                            Vector3 right = Camera.main.transform.right;
-                            right.y = 0; // 垂直方向の成分を無視
-                            right.Normalize();
-
-                            // X方向のみにターゲット方向を設定
-                            targetDirection = right * swipeDelta.x;
-                            isMoving = true;
-                            currentSpeed = moveSpeed;
-                        }
-                    }
-                    break;
-
-                case TouchPhase.Ended:
-                    isSwiping = false;
+                // DOTweenでX座標のみ移動
+                MoveToX(worldPos.x);
+            }
+            else if (touch.phase == TouchPhase.Ended)
+            {
+                if (harukoAnimator != null)
                     harukoAnimator.SetBool("isWalking", false);
-                    break;
             }
         }
 
-        // エディタでのデバッグ用マウス入力
-        #if UNITY_EDITOR
-        if (Input.GetMouseButtonDown(0))
+#if UNITY_EDITOR
+        if (Input.GetMouseButtonDown(0) || Input.GetMouseButton(0))
         {
-            touchStartPos = Input.mousePosition;
-            isSwiping = true;
-            harukoAnimator.SetBool("isWalking", true);
-        }
-        else if (Input.GetMouseButton(0) && isSwiping)
-        {
-            touchEndPos = Input.mousePosition;
-            Vector2 swipeDelta = touchEndPos - touchStartPos;
+            Vector3 mousePos = Input.mousePosition;
+            mousePos.z = Mathf.Abs(Camera.main.transform.position.z - transform.position.z);
+            Vector3 worldPos = Camera.main.ScreenToWorldPoint(mousePos);
 
-            if (swipeDelta.magnitude > minSwipeDistance)
-            {
-                Vector3 right = Camera.main.transform.right;
-                right.y = 0; // 垂直方向の成分を無視
-                right.Normalize();
-
-                // X方向のみにターゲット方向を設定
-                targetDirection = right * swipeDelta.x;
-                isMoving = true;
-                currentSpeed = moveSpeed;
-            }
+            MoveToX(worldPos.x);
         }
         else if (Input.GetMouseButtonUp(0))
         {
-            isSwiping = false;
-            harukoAnimator.SetBool("isWalking", false);
+            if (harukoAnimator != null)
+                harukoAnimator.SetBool("isWalking", false);
         }
-        #endif
+#endif
+    }
+
+    private void MoveToX(float targetX)
+    {
+        // 既存TweenをKill
+        moveTween?.Kill();
+
+        // DOTweenでX座標のみ移動
+        Vector3 targetPos = new Vector3(targetX, transform.position.y, transform.position.z);
+        float duration = Mathf.Abs(targetX - transform.position.x) / moveSpeed;
+        if (duration < 0.1f) duration = 0.1f;
+
+        moveTween = transform.DOMoveX(targetX, duration)
+            .SetEase(Ease.OutQuad)
+            .OnStart(() =>
+            {
+                if (harukoAnimator != null)
+                    harukoAnimator.SetBool("isWalking", true);
+            })
+            .OnComplete(() =>
+            {
+                if (harukoAnimator != null)
+                    harukoAnimator.SetBool("isWalking", false);
+            });
+    }
+
+    private void OnDisable()
+    {
+        moveTween?.Kill();
     }
 
     void MoveCharacter()
     {
-        if (targetDirection != Vector3.zero && isMoving)
+        if (isMoving && targetDirection != Vector3.zero)
         {
-            // スワイプ終了後、徐々に減速
-            if (!isSwiping)
+            // 徐々に減速（タッチを離したときのみ）
+            if (!Input.GetMouseButton(0) && Input.touchCount == 0)
             {
                 currentSpeed = Mathf.Max(0, currentSpeed - stopSpeed * Time.deltaTime);
                 if (currentSpeed <= 0)
@@ -157,31 +146,29 @@ public class SwipeMovementController : MonoBehaviour
                 }
             }
 
-            // 水平方向 (X方向) のみの移動
-            Vector3 movement = targetDirection * currentSpeed * Time.deltaTime;
-            movement.z = 0; // Z軸の移動を強制的に0に
+            // X方向のみ移動
+            Vector3 movement = new Vector3(targetDirection.x, 0, 0) * currentSpeed * Time.deltaTime;
 
-            // 斜めの壁にぶつかった際にZ軸方向へ滑らないようにする
-            // Move前にX方向だけの移動ベクトルを作成し、壁との衝突でZ方向に押し出されてもX方向のみを維持
             Vector3 beforePosition = transform.position;
-
-            // 重力を適用し、Y軸のスナップを実施
             ApplyGravity();
-
-            // キャラクターを移動
             characterController.Move(movement);
 
-            // 移動後の位置でZ軸方向にずれていたら補正
+            // Z軸方向のずれ補正
             Vector3 afterPosition = transform.position;
             if (Mathf.Abs(afterPosition.z - beforePosition.z) > 0.0001f)
             {
                 transform.position = new Vector3(afterPosition.x, afterPosition.y, beforePosition.z);
             }
+
+            // アニメーション
+            if (harukoAnimator != null)
+                harukoAnimator.SetBool("isWalking", true);
         }
         else
         {
-            // 移動していない場合も地面にスナップ
             ApplyGravity();
+            if (harukoAnimator != null)
+                harukoAnimator.SetBool("isWalking", false);
         }
     }
 
@@ -253,8 +240,8 @@ public class SwipeMovementController : MonoBehaviour
         }
 
         // GameOverパネル（gameUiCanvas）と文字、リトライボタンを表示
-        if (gameOverText != null)
-            gameOverText.gameObject.SetActive(true);
+        if (gameOverTextBgImg != null)
+            gameOverTextBgImg.SetActive(true);
         if (retryButton != null)
             retryButton.SetActive(true);
 
