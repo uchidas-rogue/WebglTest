@@ -5,7 +5,6 @@ public class SwipeMovementController : MonoBehaviour
 {
     [Header("Movement Settings")]
     [SerializeField] float moveSpeed = 0.05f;
-    [SerializeField] float stopSpeed = 5f;
     [SerializeField] float gravity = 9.8f;
 
     [Header("Ground Settings")]
@@ -15,10 +14,7 @@ public class SwipeMovementController : MonoBehaviour
 
     Animator harukoAnimator;
 
-    bool isMoving = false;
-    Vector3 targetDirection;
     CharacterController characterController;
-    float currentSpeed;
     float verticalVelocity;
     bool isGameOver = false;
 
@@ -53,6 +49,8 @@ public class SwipeMovementController : MonoBehaviour
         {
             Debug.LogError("Child object not found.");
         }
+
+        ApplyGravity();
     }
 
     void Update()
