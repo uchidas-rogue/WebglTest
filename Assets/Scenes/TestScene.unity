@@ -258,7 +258,7 @@ GameObject:
   - component: {fileID: 91310225}
   - component: {fileID: 91310227}
   m_Layer: 5
-  m_Name: ScoreTextTMP
+  m_Name: ScoreNumTextTMP
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -669,7 +669,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &427341843
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2444,9 +2444,8 @@ GameObject:
   - component: {fileID: 1324156319}
   - component: {fileID: 1324156322}
   - component: {fileID: 1324156321}
-  - component: {fileID: 1324156320}
   m_Layer: 5
-  m_Name: ScoreTextTMP (1)
+  m_Name: ScoreTextTMP
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2471,19 +2470,6 @@ RectTransform:
   m_AnchoredPosition: {x: -32.9, y: -11}
   m_SizeDelta: {x: 838.5836, y: 136.6511}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1324156320
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1324156318}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fa85167e2ff2f4d76a77525c9c43b448, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  scoreText: {fileID: 1324156321}
 --- !u!114 &1324156321
 MonoBehaviour:
   m_ObjectHideFlags: 0
