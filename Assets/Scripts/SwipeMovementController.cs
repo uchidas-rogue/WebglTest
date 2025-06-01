@@ -59,7 +59,6 @@ public class SwipeMovementController : MonoBehaviour
     {
         if (isGameOver) return;
         HandleTouchMove();
-        MoveCharacter();
     }
 
     void HandleTouchMove()
@@ -129,49 +128,6 @@ public class SwipeMovementController : MonoBehaviour
     {
         moveTween?.Kill();
     }
-
-    void MoveCharacter()
-    {
-        if (isMoving && targetDirection != Vector3.zero)
-        {
-            // 徐々に減速（タッチを離したときのみ）
-            if (!Input.GetMouseButton(0) && Input.touchCount == 0)
-            {
-                currentSpeed = Mathf.Max(0, currentSpeed - stopSpeed * Time.deltaTime);
-                if (currentSpeed <= 0)
-                {
-                    isMoving = false;
-                    targetDirection = Vector3.zero;
-                    return;
-                }
-            }
-
-            // X方向のみ移動
-            Vector3 movement = new Vector3(targetDirection.x, 0, 0) * currentSpeed * Time.deltaTime;
-
-            Vector3 beforePosition = transform.position;
-            ApplyGravity();
-            characterController.Move(movement);
-
-            // Z軸方向のずれ補正
-            Vector3 afterPosition = transform.position;
-            if (Mathf.Abs(afterPosition.z - beforePosition.z) > 0.0001f)
-            {
-                transform.position = new Vector3(afterPosition.x, afterPosition.y, beforePosition.z);
-            }
-
-            // アニメーション
-            if (harukoAnimator != null)
-                harukoAnimator.SetBool("isWalking", true);
-        }
-        else
-        {
-            ApplyGravity();
-            if (harukoAnimator != null)
-                harukoAnimator.SetBool("isWalking", false);
-        }
-    }
-
     void ApplyGravity()
     {
         // キャラクターが地面に接しているか確認
