@@ -11,6 +11,6 @@ public class ScoreUI : MonoBehaviour
 
     private void Start()
     {
-        scoreModel.scoreRP.Subscribe(score => scoreText.text = $"Score: {score}");
+        scoreModel.scoreRP.Subscribe(score => scoreText.text = $"{score}");
     }
 }
