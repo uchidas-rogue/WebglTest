@@ -61,27 +61,8 @@ public class SwipeMovementController : MonoBehaviour
 
     void HandleTouchMove()
     {
-        // タッチ入力でX座標の位置に移動
-        if (Input.touchCount > 0)
-        {
-            Touch touch = Input.GetTouch(0);
-            if (touch.phase == TouchPhase.Began || touch.phase == TouchPhase.Moved)
-            {
-                Vector3 touchPos = touch.position;
-                touchPos.z = Mathf.Abs(Camera.main.transform.position.z - transform.position.z);
-                Vector3 worldPos = Camera.main.ScreenToWorldPoint(touchPos);
-
-                // DOTweenでX座標のみ移動
-                MoveToX(worldPos.x);
-            }
-            else if (touch.phase == TouchPhase.Ended)
-            {
-                if (harukoAnimator != null)
-                    harukoAnimator.SetBool("isWalking", false);
-            }
-        }
-
 #if UNITY_EDITOR
+        // エディタではマウス操作
         if (Input.GetMouseButtonDown(0) || Input.GetMouseButton(0))
         {
             Vector3 mousePos = Input.mousePosition;
@@ -91,6 +72,40 @@ public class SwipeMovementController : MonoBehaviour
             MoveToX(worldPos.x);
         }
         else if (Input.GetMouseButtonUp(0))
+        {
+            if (harukoAnimator != null)
+                harukoAnimator.SetBool("isWalking", false);
+        }
+#else
+        // WebGLビルド時
+        if (Input.touchSupported && Input.touchCount > 0)
+        {
+            // タッチデバイスならタッチ操作
+            Touch touch = Input.GetTouch(0);
+            if (touch.phase == TouchPhase.Began || touch.phase == TouchPhase.Moved)
+            {
+                Vector3 touchPos = touch.position;
+                touchPos.z = Mathf.Abs(Camera.main.transform.position.z - transform.position.z);
+                Vector3 worldPos = Camera.main.ScreenToWorldPoint(touchPos);
+
+                MoveToX(worldPos.x);
+            }
+            else if (touch.phase == TouchPhase.Ended)
+            {
+                if (harukoAnimator != null)
+                    harukoAnimator.SetBool("isWalking", false);
+            }
+        }
+        else if (!Input.touchSupported && (Input.GetMouseButtonDown(0) || Input.GetMouseButton(0)))
+        {
+            // タッチ非対応ならマウス操作
+            Vector3 mousePos = Input.mousePosition;
+            mousePos.z = Mathf.Abs(Camera.main.transform.position.z - transform.position.z);
+            Vector3 worldPos = Camera.main.ScreenToWorldPoint(mousePos);
+
+            MoveToX(worldPos.x);
+        }
+        else if (!Input.touchSupported && Input.GetMouseButtonUp(0))
         {
             if (harukoAnimator != null)
                 harukoAnimator.SetBool("isWalking", false);
