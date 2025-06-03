@@ -7,11 +7,21 @@ public class BarrelBonus : MonoBehaviour
     [SerializeField] public BonusType bonusType = BonusType.BulletCountUp;
     [SerializeField] private int bonusValue = 1; // 増加量
     [HideInInspector] public BulletSpawner bulletSpawner; // 外部からセット
+    [HideInInspector] public AudioClip barrelBurstSound; // タルが破壊されたときの音（外部からセット）
+    [HideInInspector] public AudioClip levelupSound; // レベルアップの音（外部からセット）
 
     public int hp = 3; // 外部からセット可能に（public）
     [SerializeField] private TextMeshPro tmpText; // InspectorでBarrelと一緒に配置されるTextMeshProをセット
 
+    private AudioSource barrelSoundSource; // Bulletの音（Inspectorでセット）
+
     private bool isBonusGiven = false; // ボーナス重複防止用
+
+    private void Start()
+    {
+        // 親オブジェクトからAudioSourceを取得
+        barrelSoundSource = GetComponentInParent<AudioSource>();
+    }
 
     public void UpdateText()
     {
@@ -48,6 +58,9 @@ public class BarrelBonus : MonoBehaviour
 
             if (hp <= 0)
             {
+                barrelSoundSource.PlayOneShot(barrelBurstSound); // タルが破壊されたときの音を再生
+                barrelSoundSource.PlayOneShot(levelupSound); // レベルアップの音を再生
+                
                 isBonusGiven = true; // ボーナス発動済みフラグ
                 if (bulletSpawner != null)
                 {

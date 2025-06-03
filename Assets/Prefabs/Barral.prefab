@@ -73,6 +73,7 @@ MonoBehaviour:
   bulletSpawner: {fileID: 0}
   hp: 3
   tmpText: {fileID: 21072270498876319}
+  barrelSoundSource: {fileID: 0}
 --- !u!1 &9044776845182631899
 GameObject:
   m_ObjectHideFlags: 0

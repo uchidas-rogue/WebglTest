@@ -14,6 +14,9 @@ public class BarrelSpawner : MonoBehaviour
     [SerializeField] private float hpGrowthRate = 1.15f; // hpの増加率（指数の底）をInspectorからセット
     [SerializeField] private float minDistance = 1.5f; // タル同士の最小距離（Inspectorからセット）
 
+    [SerializeField] private AudioClip barrelBurstSound; // タルが破壊されたときの音（Inspectorからセット）
+    [SerializeField] private AudioClip levelupSound; // レベルアップの音（Inspectorからセット）
+
     private float timer = 0f;
 
     private void Start()
@@ -69,7 +72,7 @@ public class BarrelSpawner : MonoBehaviour
         IEnumerator SpawnAndInitBarrel(BarrelBonus.BonusType bonusType)
         {
             Vector3 spawnPos = GetSpawnPos();
-            var handle = barrelPrefabReference.InstantiateAsync(spawnPos, fixedRotation);
+            var handle = barrelPrefabReference.InstantiateAsync(spawnPos, fixedRotation, transform);
             yield return handle;
 
             if (handle.Status == AsyncOperationStatus.Succeeded)
@@ -81,6 +84,8 @@ public class BarrelSpawner : MonoBehaviour
                 if (bonus != null)
                 {
                     bonus.bulletSpawner = bulletSpawner;
+                    bonus.barrelBurstSound = barrelBurstSound;
+                    bonus.levelupSound = levelupSound;
                     bonus.bonusType = bonusType;
 
                     int bulletCount = bulletSpawner.BulletCount;

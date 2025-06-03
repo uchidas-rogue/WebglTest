@@ -12,6 +12,7 @@ public class BulletSpawner : MonoBehaviour
     [SerializeField] private float launchDelay = 0.1f; // 弾の発射タイミングをずらす間隔
     [SerializeField] private int bulletDamage = 1; // 弾のダメージ
     [SerializeField] private int bulletCount = 1; // 一度に発射する弾の数
+    [SerializeField] private AudioSource bulletSound; // 発射音（Inspectorからセット）
 
     private float spawnTimer; // 発射間隔の計測用タイマー
 
@@ -48,6 +49,7 @@ public class BulletSpawner : MonoBehaviour
                     bulletScript.damage = bulletDamage; // bulletDamageで上書き
                     bulletScript.SetBulletParams(bulletSpeed, maxDistance, transform.forward);
                 }
+                bulletSound?.Play(); // 発射音を再生
             });
 
             // 次の弾の発射を少し遅らせる

@@ -13,6 +13,7 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private float enemySize = 1f; // 敵の大きさ
     [SerializeField] private float moveSpeed = 2f; // 敵の移動速度
     [SerializeField] private int enemyHp = 1; // 敵の初期HP
+    [SerializeField] private AudioSource enemySpawnSound; // 敵出現時のサウンド（Inspectorからセット）
 
     [Inject] public Score scoreModel { get; set; } // VContainerでInject
 
@@ -43,7 +44,7 @@ public class EnemySpawner : MonoBehaviour
             // z軸で逆向きに回転
             Quaternion rotation = Quaternion.Euler(0, 180f, 0);
 
-            GameObject enemy = Instantiate(enemyPrefab, spawnPosition, rotation);
+            GameObject enemy = Instantiate(enemyPrefab, spawnPosition, rotation, transform);
 
             enemy.transform.localScale = Vector3.one * enemySize;
 
@@ -53,6 +54,7 @@ public class EnemySpawner : MonoBehaviour
             EnemyMovement enemyMovement = enemy.AddComponent<EnemyMovement>();
             enemyMovement.Initialize(playerTransform, moveSpeed, dynamicHp); // HPを渡す
             enemyMovement.scoreModel = scoreModel; // InjectしたscoreModelを渡す
+            enemyMovement.enemySpawnSound = enemySpawnSound; // サウンドをセット
         }
     }
 

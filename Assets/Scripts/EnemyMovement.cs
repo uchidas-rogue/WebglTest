@@ -10,6 +10,8 @@ public class EnemyMovement : MonoBehaviour
     private int hp = 1; // HPとして扱う
     private int initialHp = 1; // 生成時のHPを保持
 
+    [HideInInspector] public AudioSource enemySpawnSound;
+
     public Score scoreModel { get; set; } // EnemySpawnerでInjectされたスコアモデル
     public void Initialize(Transform player, float speed, int hpValue)
     {
@@ -53,6 +55,7 @@ public class EnemyMovement : MonoBehaviour
 
             if (hp <= 0)
             {
+                enemySpawnSound.Play(); // 敵のサウンドを再生
                 // スコア加算（初期HP分）
                 if (scoreModel != null)
                 {
