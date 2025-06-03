@@ -15,6 +15,7 @@ public class BulletSpawner : MonoBehaviour
     [SerializeField] private AudioSource bulletSound; // 発射音（Inspectorからセット）
 
     private float spawnTimer; // 発射間隔の計測用タイマー
+    private Sequence launchSequence; // DOTweenのシーケンス
 
     private void Update()
     {
@@ -30,7 +31,7 @@ public class BulletSpawner : MonoBehaviour
     private void SpawnBullets()
     {
         // DOTweenのシーケンスを作成してタイミングを制御
-        Sequence launchSequence = DOTween.Sequence();
+        launchSequence = DOTween.Sequence();
 
         for (int i = 0; i < bulletCount; i++)
         {
@@ -70,4 +71,13 @@ public class BulletSpawner : MonoBehaviour
     public int BulletCount => bulletCount;
 
     public int BulletDamage => bulletDamage;
+
+    private void OnDisable()
+    {
+        // シーケンスが存在する場合は停止
+        if (launchSequence != null)
+        {
+            launchSequence.Kill();
+        }
+    }
 }
